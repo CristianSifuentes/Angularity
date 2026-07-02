@@ -8,7 +8,11 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-  <p class="sh-wonderful"></p>
+  <!--
+    Angular only ever touches what's inside <app-root> (App.templateUrl
+    replaces the tag's content once bootstrapped) — everything else in
+    this file is static HTML the framework never re-renders.
+  -->
   <app-root></app-root>
 </body>
 </html>

@@ -1,6 +1,39 @@
-<section>
-    <h1>Welcome!</h1>
-    <p>This card mixes HTML structure with CSS styling.</p>
-    <button>Learn more</button>
+<!--
+  This template is compiled ahead-of-time into JavaScript render
+  functions — it is NOT parsed as HTML in the browser at runtime. That is
+  what unlocks the Angular-only syntax below ({{ }}, (event), @if, …).
+-->
 
+<section class="card">
+  <!--
+    Interpolation `{{ }}`: Angular calls `title()` (signals are functions
+    you invoke to read their current value) every change-detection pass
+    and stitches the result into the text node. It is automatically
+    HTML-escaped, so this is safe against injection even if `title` came
+    from user input.
+  -->
+  <h1>Welcome, {{ title() }}!</h1>
+  <p>This card mixes HTML structure with CSS styling.</p>
+
+  <!--
+    Event binding `(click)="…"`: the string is a template expression, not
+    raw JS — it runs in the component's context, so `increment()` resolves
+    to `this.increment()` on the `App` class. Angular schedules a
+    change-detection pass right after it runs, which is why the
+    interpolations below update without any manual "re-render" call.
+  -->
+  <button type="button" (click)="increment()">Learn more</button>
+
+  <!--
+    `@if` is the modern (v17+) control-flow block — a direct replacement
+    for the structural directive `*ngIf`. Unlike `*ngIf`, the content
+    inside is fully removed/added to the DOM (not just visually hidden),
+    and it needs no `CommonModule` import: it's built into the compiler.
+  -->
+  @if (hasBeenClicked()) {
+    <p class="card__hint">
+      Clicked {{ clicks() }} time{{ clicks() === 1 ? '' : 's' }} — the
+      paragraph above only exists in the DOM while this condition is true.
+    </p>
+  }
 </section>
