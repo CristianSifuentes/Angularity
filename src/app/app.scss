@@ -1,0 +1,95 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Angular scopes component styles by default (emulated ViewEncapsulation):
+// the compiler rewrites every selector below to also require a generated
+// attribute, e.g. `section[_ngcontent-abc-1]`, and stamps that same
+// attribute onto every element this template renders. That's why a plain
+// `section { … }` here can't leak out and clash with a `section` used by
+// some other component.
+//
+// The one exception is `:host`, which targets the component's own host
+// element — here, the literal `<app-root>` tag Angular put in index.html.
+// `<body>` itself is OUTSIDE that boundary (it's what *contains* app-root,
+// not part of this component's template), so a `.body { }` rule in this
+// file can never match anything: the class is simply never applied to a
+// real element. That was a dead selector in the previous version of this
+// file — page-level concerns (background, base font) belong on `:host`
+// (this component's own root) or in the app-wide src/styles.scss, not in
+// a scoped stylesheet targeting an element the component doesn't own.
+// ─────────────────────────────────────────────────────────────────────────
+:host {
+  display: block;
+  min-height: 100dvh;
+  font-family: Arial, sans-serif;
+  background-color: #f3f6f9;
+
+  // ── Fluid spacing ──────────────────────────────────────────────────
+  // `clamp(min, preferred, max)` picks the *preferred* value (here, a
+  // viewport-relative one) but clamps it between the other two — so it
+  // scales continuously with the viewport instead of jumping at fixed
+  // breakpoints, while never collapsing to 0 on tiny screens or growing
+  // absurdly large on huge ones. This is the page's outer gutter: at
+  // ~360px wide it resolves near 16px, at ~1600px it's capped at 48px.
+  padding-inline: clamp(16px, 5vw, 48px);
+  padding-block: clamp(24px, 6vw, 60px);
+}
+
+// BEM (Block__Element--Modifier) naming: `.card` is the block, and
+// `.card__hint` below is an element that only makes sense inside it.
+// It's a convention, not an Angular feature — but it keeps selectors flat
+// (no nesting-driven specificity wars) and communicates intent by name
+// alone.
+.card {
+  // `width: 100%` + `max-width` (instead of a fixed width) is what makes
+  // this fluid rather than just "responsive at a breakpoint": the card
+  // is exactly as wide as its container allows, up to a comfortable
+  // reading-width ceiling, at every single viewport size in between.
+  width: 100%;
+  max-width: 500px;
+  margin-inline: auto; // centers the card inside :host's fluid gutter.
+  padding: clamp(16px, 4vw, 24px);
+
+  background: white;
+  border-radius: 6px;
+}
+
+h1 {
+  // Fluid typography: scales smoothly between 1.5rem and 2.25rem, driven
+  // by viewport width in the middle term. `1rem + 2vw` mixes an absolute
+  // floor with a viewport-relative term so it still respects the user's
+  // browser font-size setting (accessibility) rather than being purely
+  // `vw`-based, which would ignore zoom/user font preferences entirely.
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+  color: #04aa6d;
+}
+
+button {
+  background: #04aa6d;
+  color: white;
+  border: none;
+  padding: clamp(8px, 2vw, 10px) clamp(14px, 4vw, 18px);
+  border-radius: 4px;
+
+  // Not purely decorative: without this, the button keeps the browser's
+  // default `cursor: default`/text cursor on some UAs even though it's
+  // clickable, which is a small but real affordance bug.
+  cursor: pointer;
+}
+
+// Only rendered while `hasBeenClicked()` is true (see the `@if` block in
+// app.html) — styled distinctly so the conditional rendering is visible,
+// not just functional.
+.card__hint {
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #5a6b7a;
+}
+
+// `app-card-list` is a *sibling* of `.card`, styled from here (not from
+// card-list.scss) purely because "space between two unrelated
+// components" is a page-layout concern, not something either component
+// should need to know about itself.
+app-card-list,
+app-box-model {
+  display: block;
+  margin-top: clamp(24px, 6vw, 40px);
+}

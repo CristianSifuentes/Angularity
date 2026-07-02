@@ -1,0 +1,46 @@
+<!--
+  `.card-grid` below is a CSS Grid container (2D: rows AND columns) — it
+  only decides *where each card sits relative to the others*. Everything
+  happening *inside* a single `.card-tile` (header row, body growing to
+  fill space, footer pinned to the bottom) is Flexbox (1D) instead. Grid
+  for the macro layout, Flex for the micro layout is the standard split:
+  reach for Grid when both axes matter, Flex when only one does.
+-->
+<section class="card-grid">
+  <!--
+    `@for` (v17+ control-flow block) replaces the structural directive
+    `*ngFor`. `track card.id` is not optional syntax sugar — it tells
+    Angular how to match array items across re-renders (by identity, not
+    by array index) so that on reorder/update it patches the existing DOM
+    node for card #3 instead of destroying and recreating every node
+    after the change. Track by index (`track $index`) only when items
+    truly have no stable identity.
+  -->
+  @for (card of cards; track card.id) {
+    <!--
+      `[class.card-tile--featured]="…"` is a class binding: the class is
+      toggled on/off based on the boolean expression, with no risk of
+      typos wiping out other classes the way string-concatenating
+      `[class]` could. `$index` is a built-in variable `@for` exposes —
+      no manual counter needed.
+    -->
+    <article
+      class="card-tile"
+      [class.card-tile--featured]="$index === featuredIndex()"
+    >
+      <header class="card-tile__header">
+        <h3>{{ card.title }}</h3>
+        <span class="card-tile__tag">{{ card.tag }}</span>
+      </header>
+
+      <p class="card-tile__body">{{ card.description }}</p>
+
+      @if ($index === featuredIndex()) {
+        <footer class="card-tile__footer">
+          ⭐ Featured — click "Learn more" in the card above to move this
+          highlight to a different tile.
+        </footer>
+      }
+    </article>
+  }
+</section>
