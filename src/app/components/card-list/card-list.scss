@@ -1,0 +1,124 @@
+// ─────────────────────────────────────────────────────────────────────────
+// GRID — the macro layout (how many cards per row, how they wrap).
+// ─────────────────────────────────────────────────────────────────────────
+.card-grid {
+  display: grid;
+
+  // `repeat(auto-fit, minmax(<fluid>, 1fr))` — the column *count* is
+  // already fluid (no breakpoint decides "2 columns" vs "4 columns", the
+  // browser fits as many as fit). Wrapping the minimum in `clamp()` makes
+  // the per-column *width* fluid too: the floor itself scales between
+  // 160px and 240px depending on viewport width, instead of being one
+  // fixed number. Net effect — both how many cards per row AND how wide
+  // each one is comfortable-to-read adjust continuously, with zero
+  // `@media` queries.
+  grid-template-columns: repeat(auto-fit, minmax(clamp(160px, 30vw, 240px), 1fr));
+
+  // Fluid gap: tighter on phones (less width to spare), roomier on desktop.
+  gap: clamp(12px, 3vw, 20px);
+
+  // `container-type: inline-size` turns *this element* into a query
+  // container: descendants can now use `@container` to react to THIS
+  // box's width via `container-name: card-grid` below, instead of the
+  // viewport's. That distinction matters because `.card-grid` isn't
+  // necessarily as wide as the viewport — e.g. if this component ever
+  // ends up next to a sidebar, a `@media` query would see the full
+  // browser width and guess wrong, while `@container` sees the grid's
+  // actual, possibly-narrower box and gets it right. See the
+  // `@container` rule on `.card-tile__header` below.
+  container: card-grid / inline-size;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// FLEX — the micro layout (arranging content *within* one card).
+// ─────────────────────────────────────────────────────────────────────────
+.card-tile {
+  display: flex;
+  // `column`: children stack top-to-bottom. This is what makes the
+  // `margin-top: auto` footer trick below work — in a flex container,
+  // `auto` margins absorb 100% of the leftover free space along the main
+  // axis, which for a column container *is* the vertical axis.
+  flex-direction: column;
+
+  padding: clamp(12px, 3vw, 16px);
+  background: white;
+  border: 1px solid #e3e8ee;
+  border-radius: 6px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &--featured {
+    border-color: #04aa6d;
+    box-shadow: 0 4px 14px rgba(4, 170, 109, 0.18);
+    transform: translateY(-2px);
+  }
+
+  // Respect the user's OS-level "reduce motion" accessibility setting —
+  // responsive design isn't only about screen size, it's about adapting
+  // to the *user's* environment and preferences too.
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &--featured {
+      transform: none;
+    }
+  }
+}
+
+.card-tile__header {
+  display: flex;
+  // Row-direction flex (the default) laid out on the *cross* axis with
+  // `align-items: center` (vertical centering) and pushed apart on the
+  // *main* axis with `justify-content: space-between` — the classic
+  // "title on the left, badge on the right" pattern in two declarations,
+  // no absolute positioning involved.
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  h3 {
+    margin: 0;
+    font-size: clamp(0.95rem, 0.85rem + 0.4vw, 1.1rem);
+  }
+
+  // `@container` (not `@media`): this fires based on `.card-grid`'s own
+  // box width (declared via `container: card-grid / inline-size` above),
+  // not the browser viewport. On a narrow grid — a phone, or this
+  // component dropped into a narrow sidebar — each tile's header
+  // switches from a side-by-side row to a stacked column so the tag
+  // badge never has to fight the title for horizontal space.
+  @container card-grid (max-width: 420px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.card-tile__tag {
+  flex-shrink: 0; // never let the badge get squeezed by a long title.
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: #5a6b7a;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.card-tile__body {
+  // The key footer-pinning trick: `flex-grow` isn't set here, so this
+  // paragraph only takes the space its text needs — then the footer's
+  // own `margin-top: auto` claims everything left over, pushing itself
+  // to the bottom of the card regardless of how much/little text
+  // preceded it. This keeps every card's footer aligned across a row
+  // even when descriptions are different lengths.
+  margin: 8px 0 0;
+  color: #5a6b7a;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.card-tile__footer {
+  margin-top: auto;
+  padding-top: 12px;
+  font-size: 0.8rem;
+  color: #04aa6d;
+}
