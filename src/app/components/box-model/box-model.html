@@ -1,0 +1,121 @@
+<section class="box-model">
+  <h2>El modelo de cajas</h2>
+  <p class="box-model__intro">
+    Every box on the web is four nested rectangles — <strong>content</strong>,
+    <strong>padding</strong>, <strong>border</strong> and <strong>margin</strong>
+    — colored below the same way browser DevTools color them. Drag the
+    sliders; the diagram and the numbers underneath it are driven by the
+    exact same signals, live.
+  </p>
+
+  <div class="box-model__layout">
+    <!-- ── Controls ──────────────────────────────────────────────────── -->
+    <div class="controls">
+      <label class="controls__field">
+        <span>width: {{ width() }}px</span>
+        <input type="range" min="100" max="300" [value]="width()" (input)="width.set(fromRange($event))" />
+      </label>
+
+      <label class="controls__field">
+        <span>height: {{ height() }}px</span>
+        <input type="range" min="60" max="200" [value]="height()" (input)="height.set(fromRange($event))" />
+      </label>
+
+      <label class="controls__field">
+        <span>padding: {{ padding() }}px</span>
+        <input type="range" min="0" max="50" [value]="padding()" (input)="padding.set(fromRange($event))" />
+      </label>
+
+      <label class="controls__field">
+        <span>border: {{ borderWidth() }}px</span>
+        <input type="range" min="0" max="20" [value]="borderWidth()" (input)="borderWidth.set(fromRange($event))" />
+      </label>
+
+      <label class="controls__field">
+        <span>margin: {{ margin() }}px</span>
+        <input type="range" min="0" max="50" [value]="margin()" (input)="margin.set(fromRange($event))" />
+      </label>
+
+      <!--
+        This single click is the entire difference between the standard
+        and alternate box models from the article — everything else in
+        this component is the same three numbers, reinterpreted.
+      -->
+      <button type="button" class="controls__toggle" (click)="toggleBoxSizing()">
+        box-sizing: {{ boxSizing() }}
+      </button>
+    </div>
+
+    <!-- ── Diagram: four nested boxes, one per layer ────────────────── -->
+    <div class="diagram">
+      <div class="layer layer--margin" [style.padding.px]="margin()">
+        <span class="layer__label">margin {{ margin() }}px</span>
+
+        <div class="layer layer--border" [style.border-width.px]="borderWidth()">
+          <span class="layer__label">border {{ borderWidth() }}px</span>
+
+          <div class="layer layer--padding" [style.padding.px]="padding()">
+            <span class="layer__label">padding {{ padding() }}px</span>
+
+            <div
+              class="layer layer--content"
+              [style.width.px]="renderedContentWidth()"
+              [style.height.px]="renderedContentHeight()"
+            >
+              content<br />{{ renderedContentWidth() }} × {{ renderedContentHeight() }}px
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── The formula, spelled out ──────────────────────────────────── -->
+  <p class="box-model__formula">
+    Total visible box (border edge to border edge):
+    <strong>{{ totalWidth() }} × {{ totalHeight() }}px</strong>
+    @if (!isBorderBox()) {
+      = {{ width() }} (width) + {{ padding() }}×2 (padding) + {{ borderWidth() }}×2 (border) —
+      padding/border are <em>added</em> on top of the width you set.
+    } @else {
+      = the width/height you set, directly — padding/border are <em>carved out</em>
+      of it instead, so content shrinks to {{ renderedContentWidth() }}px.
+    }
+  </p>
+
+  <!-- ── Margin collapse ──────────────────────────────────────────── -->
+  <div class="collapse-demo">
+    <h3>Colapso de márgenes</h3>
+    <p>
+      Two block-level siblings in normal flow with touching vertical
+      margins don't add their margins — the LARGER one wins.
+    </p>
+
+    <div class="controls">
+      <label class="controls__field">
+        <span>A's margin-bottom: {{ marginBottomA() }}px</span>
+        <input type="range" min="0" max="80" [value]="marginBottomA()" (input)="marginBottomA.set(fromRange($event))" />
+      </label>
+      <label class="controls__field">
+        <span>B's margin-top: {{ marginTopB() }}px</span>
+        <input type="range" min="0" max="80" [value]="marginTopB()" (input)="marginTopB.set(fromRange($event))" />
+      </label>
+    </div>
+
+    <!--
+      Plain block-flow container on purpose: margin collapsing is a
+      normal-flow behavior only. Wrapping this in `display: flex` (as
+      almost every other layout in this app does) would silently turn
+      collapsing OFF, which would make this demo lie.
+    -->
+    <div class="stack">
+      <div class="stack__box" [style.margin-bottom.px]="marginBottomA()">Párrafo A</div>
+      <div class="stack__box" [style.margin-top.px]="marginTopB()">Párrafo B</div>
+    </div>
+
+    <p class="box-model__formula">
+      Real gap: <strong>{{ collapsedGap() }}px</strong>
+      (not the sum, which would be {{ marginBottomA() + marginTopB() }}px)
+    </p>
+  </div>
+</section>

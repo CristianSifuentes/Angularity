@@ -1,0 +1,184 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Color convention borrowed straight from browser DevTools' own box-model
+// inspector, so the mapping feels familiar the moment you've opened one:
+// margin = orange, border = yellow, padding = green/teal, content = blue.
+// Defined once as custom properties so the diagram and any future legend
+// stay in sync by construction, not by copy-pasted hex values.
+// ─────────────────────────────────────────────────────────────────────────
+:host {
+  --margin-color: 246, 178, 107; // orange
+  --border-color: 255, 205, 86; // yellow
+  --padding-color: 147, 196, 125; // green
+  --content-color: 111, 168, 220; // blue
+
+  display: block;
+  padding: clamp(16px, 4vw, 24px);
+  background: white;
+  border-radius: 6px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  color: #04aa6d;
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.6rem);
+}
+
+h3 {
+  margin: 32px 0 4px;
+  font-size: 1.1rem;
+}
+
+.box-model__intro {
+  margin: 0 0 20px;
+  color: #5a6b7a;
+  line-height: 1.5;
+}
+
+// Diagram on the right, controls on the left on wide screens; stacked on
+// narrow ones — a fluid two-track layout without a hard breakpoint,
+// using the same `auto-fit`/`minmax` idea as the card grid, just with
+// only two items so it settles into either 2 columns or 1.
+.box-model__layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: clamp(16px, 4vw, 32px);
+  align-items: start;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.controls__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #5a6b7a;
+
+  input[type='range'] {
+    // Recolor the native slider to match the palette instead of leaving
+    // the OS-default gray — a small touch, but it's what makes an
+    // interactive diagram feel designed rather than bolted-on.
+    accent-color: #04aa6d;
+  }
+}
+
+.controls__toggle {
+  align-self: flex-start;
+  padding: 8px 16px;
+  background: #04aa6d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #038a59;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// The diagram itself: four DIVs nested exactly the way the real box model
+// nests its layers, each one's `padding`/`border-width` bound live from
+// the template — so this isn't an illustration OF the box model, it's an
+// actual box model, rendered with exaggerated, labeled, colored layers.
+// ─────────────────────────────────────────────────────────────────────────
+.diagram {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  overflow: auto;
+}
+
+.layer {
+  position: relative;
+  transition: padding 0.15s ease, border-width 0.15s ease, width 0.15s ease, height 0.15s ease;
+}
+
+.layer--margin {
+  background: rgba(var(--margin-color), 0.35);
+  border: 1px dashed rgba(var(--margin-color), 0.9);
+}
+
+.layer--border {
+  background: rgba(var(--border-color), 0.35);
+  border-style: solid;
+  border-color: rgba(var(--border-color), 0.9);
+}
+
+.layer--padding {
+  background: rgba(var(--padding-color), 0.35);
+}
+
+.layer--content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: rgba(var(--content-color), 0.55);
+  color: #1a3a5c;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+// Small colored tags pinned to the top-left corner of each layer —
+// `position: absolute` here is safe specifically because every `.layer`
+// above is `position: relative`, giving each label its own containing
+// block instead of escaping to the diagram's corner.
+.layer__label {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 0.65rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.box-model__formula {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: #f3f6f9;
+  border-left: 3px solid #04aa6d;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #5a6b7a;
+
+  strong {
+    color: #1a3a5c;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Margin-collapse demo
+// ─────────────────────────────────────────────────────────────────────────
+.collapse-demo p {
+  color: #5a6b7a;
+  font-size: 0.9rem;
+}
+
+.stack {
+  // Deliberately NOT flex/grid — see the HTML comment. Plain block flow
+  // is what makes the two children's vertical margins collapse for real.
+  margin-top: 20px;
+}
+
+.stack__box {
+  padding: 12px;
+  background: rgba(var(--content-color), 0.2);
+  border: 1px solid rgba(var(--content-color), 0.6);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #1a3a5c;
+  text-align: center;
+}

@@ -37,3 +37,16 @@
     </p>
   }
 </section>
+
+<!--
+  Parent → child data flow: `clicks` is a signal on THIS component (App).
+  `[highlightSeed]="clicks()"` reads it and passes the plain number down
+  as a property binding — CardList never sees the App class, never
+  imports App, and never knows a button exists. It only knows it received
+  a number. That's the contract a signal `input()` gives you: one-way,
+  read-only from the child's side, and re-evaluated automatically every
+  time `clicks()` changes here.
+-->
+<app-card-list [highlightSeed]="clicks()" />
+
+<app-box-model />
