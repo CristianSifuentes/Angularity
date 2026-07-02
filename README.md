@@ -13,6 +13,64 @@
 
 ---
 
+## Table of Contents
+
+<details open>
+<summary><b>Navigate the Documentation</b></summary>
+
+```
+Angularity/
+│
+├── 01 · Platform Overview
+│   ├── ❯ What is Angular?
+│   └── ❯ Key Pillars of the Platform
+│
+├── 02 · Architecture
+│   └── ❯ How Angular Platforms Work Under the Hood
+│
+├── 03 · Tech Stack
+│   └── ❯ Dependencies & Tooling
+│
+├── 04 · Getting Started
+│   ├── ❯ Prerequisites
+│   ├── ❯ Installation
+│   └── ❯ Running the Development Server
+│
+├── 05 · Developer Workflow
+│   ├── ❯ Available Scripts
+│   ├── ❯ Code Scaffolding with Angular CLI
+│   └── ❯ Project Structure
+│
+├── 06 · Build & Quality
+│   ├── ❯ Building for Production
+│   └── ❯ Testing
+│
+└── 07 · Community
+    ├── ❯ Learn More
+    ├── ❯ Contributing
+    └── ❯ License
+```
+
+| # | Section | Description |
+|:---:|---|---|
+| 01 | [What is Angular?](#what-is-angular) | Platform overview and philosophy |
+| 02 | [Key Pillars](#key-pillars-of-the-platform) | Component architecture, ecosystem, CLI |
+| 03 | [Under the Hood](#how-angular-platforms-work-under-the-hood) | PlatformBrowser vs PlatformServer |
+| 04 | [Tech Stack](#tech-stack) | All dependencies with versions |
+| 05 | [Getting Started](#getting-started) | Clone, install & run in 3 steps |
+| 06 | [Available Scripts](#available-scripts) | npm & ng command reference |
+| 07 | [Code Scaffolding](#code-scaffolding-with-angular-cli) | Generate components, services & more |
+| 08 | [Project Structure](#project-structure) | Folder layout explained |
+| 09 | [Production Build](#building-for-production) | AOT, tree-shaking & bundling |
+| 10 | [Testing](#testing) | Unit tests with Vitest & e2e options |
+| 11 | [Learn More](#learn-more) | Official docs, playground & blog |
+| 12 | [Contributing](#contributing) | How to contribute |
+| 13 | [License](#license) | MIT License |
+
+</details>
+
+---
+
 ## What is Angular?
 
 **Angular** is an open-source, TypeScript-based development platform maintained by **Google**, used for building scalable, single-page web and mobile applications. It unifies a component-based framework with a vast suite of well-integrated libraries (routing, forms, HTTP, and more) and a powerful set of developer tools — all in one cohesive ecosystem.
