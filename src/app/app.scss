@@ -1,0 +1,67 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Angular scopes component styles by default (emulated ViewEncapsulation):
+// the compiler rewrites every selector below to also require a generated
+// attribute, e.g. `section[_ngcontent-abc-1]`, and stamps that same
+// attribute onto every element this template renders. That's why a plain
+// `section { … }` here can't leak out and clash with a `section` used by
+// some other component.
+//
+// The one exception is `:host`, which targets the component's own host
+// element — here, the literal `<app-root>` tag Angular put in index.html.
+// `<body>` itself is OUTSIDE that boundary (it's what *contains* app-root,
+// not part of this component's template), so a `.body { }` rule in this
+// file can never match anything: the class is simply never applied to a
+// real element. That was a dead selector in the previous version of this
+// file — page-level concerns (background, base font) belong on `:host`
+// (this component's own root) or in the app-wide src/styles.scss, not in
+// a scoped stylesheet targeting an element the component doesn't own.
+// ─────────────────────────────────────────────────────────────────────────
+:host {
+  display: block;
+  min-height: 100dvh;
+  font-family: Arial, sans-serif;
+  background-color: #f3f6f9;
+}
+
+// BEM (Block__Element--Modifier) naming: `.card` is the block, and
+// `.card__hint` below is an element that only makes sense inside it.
+// It's a convention, not an Angular feature — but it keeps selectors flat
+// (no nesting-driven specificity wars) and communicates intent by name
+// alone.
+.card {
+  // The box model, outside-in: `margin` (space outside the border),
+  // `padding` (space inside the border, between border and content),
+  // and `max-width` constraining the content box itself.
+  max-width: 500px;
+  margin: 60px auto; // "auto" left/right = horizontally centered.
+  padding: 24px;
+
+  background: white;
+  border-radius: 6px;
+}
+
+h1 {
+  color: #04aa6d;
+}
+
+button {
+  background: #04aa6d;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 4px;
+
+  // Not purely decorative: without this, the button keeps the browser's
+  // default `cursor: default`/text cursor on some UAs even though it's
+  // clickable, which is a small but real affordance bug.
+  cursor: pointer;
+}
+
+// Only rendered while `hasBeenClicked()` is true (see the `@if` block in
+// app.html) — styled distinctly so the conditional rendering is visible,
+// not just functional.
+.card__hint {
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #5a6b7a;
+}
