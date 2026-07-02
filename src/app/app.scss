@@ -88,7 +88,8 @@ button {
 // card-list.scss) purely because "space between two unrelated
 // components" is a page-layout concern, not something either component
 // should need to know about itself.
-app-card-list {
+app-card-list,
+app-box-model {
   display: block;
   margin-top: clamp(24px, 6vw, 40px);
 }
