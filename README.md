@@ -49,18 +49,25 @@ Angularity/
 │   ├── ❯ Code Scaffolding with Angular CLI
 │   └── ❯ Project Structure
 │
-├── 07 · Build & Quality
+├── 07 · Workspace Configuration
+│   ├── ❯ angular.json — Structure Overview
+│   ├── ❯ Top-Level Properties
+│   ├── ❯ projects — Per-App Configuration
+│   ├── ❯ schematics — Code Generation Defaults
+│   ├── ❯ architect — Build Targets
+│   ├── ❯ configurations — Environment Overrides
+│   └── ❯ Budget Thresholds
+│
+├── 08 · Build & Quality
 │   ├── ❯ Building for Production
 │   └── ❯ Testing
 │
-└── 08 · Community
+└── 09 · Community
     ├── ❯ Learn More
     ├── ❯ Contributing
     └── ❯ License
 ```
 
-| # | Section | Description |
-|:---:|---|---|
 | # | Section | Description |
 |:---:|---|---|
 | 01 | [What is Angular?](#what-is-angular) | Platform overview and philosophy |
@@ -72,11 +79,12 @@ Angularity/
 | 07 | [Available Scripts](#available-scripts) | npm & ng command reference |
 | 08 | [Code Scaffolding](#code-scaffolding-with-angular-cli) | Generate components, services & more |
 | 09 | [Project Structure](#project-structure) | Folder layout explained |
-| 10 | [Production Build](#building-for-production) | AOT, tree-shaking & bundling |
-| 11 | [Testing](#testing) | Unit tests with Vitest & e2e options |
-| 12 | [Learn More](#learn-more) | Official docs, playground & blog |
-| 13 | [Contributing](#contributing) | How to contribute |
-| 14 | [License](#license) | MIT License |
+| **10** | [**angular.json — Workspace Configuration**](#angularjson--workspace-configuration) | **Central config file, build targets & environments** |
+| 11 | [Production Build](#building-for-production) | AOT, tree-shaking & bundling |
+| 12 | [Testing](#testing) | Unit tests with Vitest & e2e options |
+| 13 | [Learn More](#learn-more) | Official docs, playground & blog |
+| 14 | [Contributing](#contributing) | How to contribute |
+| 15 | [License](#license) | MIT License |
 
 </details>
 
@@ -504,6 +512,320 @@ Angularity/
 ├── tsconfig.spec.json     # Test-specific TypeScript config
 └── package.json           # Dependencies and scripts
 ```
+
+---
+
+## `angular.json` — Workspace Configuration
+
+> The single source of truth for your entire Angular workspace — every build, every environment, every tool target lives here.
+
+---
+
+### Structure Overview
+
+```
+╔══════════════════════════════════════════════════════════════════════════╗
+║                         angular.json                                     ║
+║                   Workspace Configuration File                           ║
+╠══════════════════════════════════════════════════════════════════════════╣
+║                                                                          ║
+║  {                                                                       ║
+║    "$schema"        ──── Enables editor validation & autocomplete        ║
+║    "version"        ──── Config schema version (always 1)                ║
+║    "cli"            ──── Workspace-wide CLI preferences                  ║
+║    "newProjectRoot" ──── Where ng generate lib / app puts new projects   ║
+║    "projects"       ──── Per-project configuration registry              ║
+║       │                                                                  ║
+║       └── "<ProjectName>"                                                ║
+║              │                                                           ║
+║              ├── projectType   ── "application" | "library"             ║
+║              ├── root          ── path to project root                   ║
+║              ├── sourceRoot    ── path to source files (src/)            ║
+║              ├── prefix        ── component selector prefix (app-)       ║
+║              ├── schematics    ── code-gen defaults                      ║
+║              └── architect     ── CLI target definitions                 ║
+║                     │                                                    ║
+║                     ├── build   ── ng build                              ║
+║                     ├── serve   ── ng serve                              ║
+║                     └── test    ── ng test                               ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
+### Top-Level Properties
+
+This project's `angular.json` top-level shape:
+
+```json
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": { ... }
+}
+```
+
+| Property | Value in this project | Purpose |
+|---|---|---|
+| `$schema` | `./node_modules/@angular/cli/lib/config/schema.json` | Links to Angular's JSON schema — enables VS Code IntelliSense and real-time validation |
+| `version` | `1` | Internal schema version; always `1` for all Angular CLI workspaces |
+| `cli.packageManager` | `npm` | Tells the CLI which package manager to invoke for installs |
+| `newProjectRoot` | `"projects"` | Directory where `ng generate application` / `ng generate library` scaffolds new sub-projects |
+
+---
+
+### `projects` — Per-App Configuration
+
+Each key inside `projects` is an independent application or library. This workspace contains one project: **Angularity**.
+
+```json
+"projects": {
+  "Angularity": {
+    "projectType": "application",
+    "root": "",
+    "sourceRoot": "src",
+    "prefix": "app",
+    "schematics": { ... },
+    "architect": { ... }
+  }
+}
+```
+
+| Property | Value | Meaning |
+|---|---|---|
+| `projectType` | `"application"` | Produces a deployable browser app; contrast with `"library"` which produces a reusable npm package |
+| `root` | `""` | The project lives at the workspace root (single-project workspace) |
+| `sourceRoot` | `"src"` | All TypeScript, templates, and styles live under `src/` |
+| `prefix` | `"app"` | `ng generate component header` → selector becomes `<app-header>` |
+
+---
+
+### `schematics` — Code Generation Defaults
+
+Schematics define the **default options applied every time `ng generate` runs**, so you don't have to pass flags manually on each command.
+
+```json
+"schematics": {
+  "@schematics/angular:component": {
+    "style": "scss",
+    "standalone": false
+  },
+  "@schematics/angular:directive": {
+    "standalone": false
+  },
+  "@schematics/angular:pipe": {
+    "standalone": false
+  }
+}
+```
+
+```
+ng generate component header
+         │
+         ▼  applies schematics defaults automatically
+         │
+         ├── style: "scss"        → generates header.component.scss
+         └── standalone: false    → omits standalone: true, adds to NgModule
+```
+
+| Schematic | Option | Value | Effect |
+|---|---|---|---|
+| `@schematics/angular:component` | `style` | `"scss"` | All generated components use `.scss` instead of `.css` |
+| `@schematics/angular:component` | `standalone` | `false` | Components belong to a `NgModule` (consistent with `--no-standalone`) |
+| `@schematics/angular:directive` | `standalone` | `false` | Directives are module-declared, not self-contained |
+| `@schematics/angular:pipe` | `standalone` | `false` | Pipes are module-declared, not self-contained |
+
+> **Why this matters:** Without these schematics defaults, every `ng generate` would create standalone components — inconsistent with the NgModule architecture chosen at project creation. These defaults enforce architectural consistency automatically.
+
+---
+
+### `architect` — Build Targets
+
+The `architect` object maps CLI commands to **builders** (plugins that execute the actual work). Each target has a `builder`, base `options`, named `configurations`, and a `defaultConfiguration`.
+
+```
+ng <command>  →  architect.<target>  →  builder  →  executes
+──────────────────────────────────────────────────────────────
+ng build      →  architect.build     →  @angular/build:application
+ng serve      →  architect.serve     →  @angular/build:dev-server
+ng test       →  architect.test      →  @angular/build:unit-test
+```
+
+<details>
+<summary><b>Target: build — <code>@angular/build:application</code></b></summary>
+
+```json
+"build": {
+  "builder": "@angular/build:application",
+  "options": {
+    "browser": "src/main.ts",
+    "tsConfig": "tsconfig.app.json",
+    "inlineStyleLanguage": "scss",
+    "assets": [
+      { "glob": "**/*", "input": "public" }
+    ],
+    "styles": [
+      "src/styles.scss"
+    ]
+  },
+  "configurations": {
+    "production": { ... },
+    "development": { ... }
+  },
+  "defaultConfiguration": "production"
+}
+```
+
+| Option | Value | Description |
+|---|---|---|
+| `builder` | `@angular/build:application` | The modern esbuild-based builder (replaces `@angular-devkit/build-angular:browser`) |
+| `browser` | `src/main.ts` | Application entry point — Angular bootstraps from here |
+| `tsConfig` | `tsconfig.app.json` | TypeScript config scoped to the app (excludes test files) |
+| `inlineStyleLanguage` | `"scss"` | Styles written inside `@Component({ styles: [] })` are treated as SCSS |
+| `assets` | `[{ glob: "**/*", input: "public" }]` | Copies everything in `public/` to the output root unchanged |
+| `styles` | `["src/styles.scss"]` | Global stylesheet, injected into every page |
+| `defaultConfiguration` | `"production"` | `ng build` without a flag runs the production config |
+
+</details>
+
+<details>
+<summary><b>Target: serve — <code>@angular/build:dev-server</code></b></summary>
+
+```json
+"serve": {
+  "builder": "@angular/build:dev-server",
+  "configurations": {
+    "production": {
+      "buildTarget": "Angularity:build:production"
+    },
+    "development": {
+      "buildTarget": "Angularity:build:development"
+    }
+  },
+  "defaultConfiguration": "development"
+}
+```
+
+| Option | Value | Description |
+|---|---|---|
+| `builder` | `@angular/build:dev-server` | Starts a local Vite/esbuild dev server with HMR |
+| `buildTarget` | `Angularity:build:<env>` | Pointer syntax: `<project>:<target>:<configuration>` |
+| `defaultConfiguration` | `"development"` | `ng serve` defaults to dev mode (source maps on, no minification) |
+
+The `buildTarget` pointer format is:
+
+```
+Angularity  :  build  :  development
+    │              │           │
+    │              │           └─ configuration name
+    │              └─ architect target name
+    └─ project name (key in "projects")
+```
+
+</details>
+
+<details>
+<summary><b>Target: test — <code>@angular/build:unit-test</code></b></summary>
+
+```json
+"test": {
+  "builder": "@angular/build:unit-test"
+}
+```
+
+| Option | Value | Description |
+|---|---|---|
+| `builder` | `@angular/build:unit-test` | Delegates to the configured test runner (Vitest in this project) |
+
+No additional options are set here — Vitest is configured directly via the Angular build plugin and `tsconfig.spec.json`.
+
+</details>
+
+---
+
+### `configurations` — Environment Overrides
+
+Configurations let you **override any base option** for a specific environment. They are merged on top of `options` at build time.
+
+```
+ng build                       → uses "production" configuration (default)
+ng build --configuration=development  → uses "development" configuration
+ng serve                       → uses "development" configuration (default)
+ng serve --configuration=production   → uses "production" configuration
+```
+
+**Production configuration:**
+
+```json
+"production": {
+  "budgets": [
+    {
+      "type": "initial",
+      "maximumWarning": "500kB",
+      "maximumError": "1MB"
+    },
+    {
+      "type": "anyComponentStyle",
+      "maximumWarning": "4kB",
+      "maximumError": "8kB"
+    }
+  ],
+  "outputHashing": "all"
+}
+```
+
+**Development configuration:**
+
+```json
+"development": {
+  "optimization": false,
+  "extractLicenses": false,
+  "sourceMap": true
+}
+```
+
+| Option | Production | Development | Purpose |
+|---|:---:|:---:|---|
+| `optimization` | `true` (implicit) | `false` | Minification, tree-shaking, dead-code removal |
+| `sourceMap` | `false` (implicit) | `true` | Generates `.map` files for browser DevTools debugging |
+| `extractLicenses` | `true` (implicit) | `false` | Extracts third-party licenses to a separate file |
+| `outputHashing` | `"all"` | — | Appends content hash to filenames for cache busting |
+
+---
+
+### Budget Thresholds
+
+Budgets enforce **performance contracts** at build time — the CLI will warn or error if your bundles exceed these limits, preventing accidental regressions.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                      Budget Configuration                           │
+│                                                                     │
+│  type: "initial"              ← total initial download size         │
+│  ┌─────────────────────────────────────────────────────────┐        │
+│  │  0 ──────────────── 500kB ──────────────── 1MB ──────→  │        │
+│  │  OK              ⚠ WARNING            ✖ ERROR  BUILD FAILS│       │
+│  └─────────────────────────────────────────────────────────┘        │
+│                                                                     │
+│  type: "anyComponentStyle"    ← per-component stylesheet size       │
+│  ┌─────────────────────────────────────────────────────────┐        │
+│  │  0 ──────────────────── 4kB ────────────── 8kB ──────→  │        │
+│  │  OK                 ⚠ WARNING          ✖ ERROR          │        │
+│  └─────────────────────────────────────────────────────────┘        │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+| Budget Type | Warning At | Error At | What It Measures |
+|---|:---:|:---:|---|
+| `initial` | `500kB` | `1MB` | Total size of all bundles loaded on first page visit |
+| `anyComponentStyle` | `4kB` | `8kB` | Size of any single component's scoped stylesheet |
+
+> **Forward-looking note:** As the app grows, budgets can be tuned by environment. A `lazy` bundle budget can also be added to enforce limits on lazy-loaded route chunks independently of the initial load.
 
 ---
 
