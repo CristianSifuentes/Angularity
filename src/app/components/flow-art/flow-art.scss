@@ -1,0 +1,304 @@
+// ─────────────────────────────────────────────────────────────────────────
+// :host — this component's own root, styled the same way box-model.scss /
+// card-list.scss treat theirs: a self-contained card that sits in the
+// page's normal flow, fluid rather than fixed-width.
+// ─────────────────────────────────────────────────────────────────────────
+:host {
+  display: block;
+  background: #0e1420;
+  border-radius: 10px;
+  padding: clamp(16px, 4vw, 28px);
+  color: #e7ecf3;
+}
+
+.flow__header {
+  h2 {
+    margin: 0 0 4px;
+    font-size: clamp(1.1rem, 0.95rem + 0.6vw, 1.4rem);
+    code {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0 6px;
+      border-radius: 4px;
+    }
+  }
+
+  p {
+    margin: 0 0 20px;
+    color: #9aa7bd;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 62ch;
+
+    code {
+      color: #7fe0b5;
+    }
+  }
+}
+
+// ── Controls ────────────────────────────────────────────────────────────
+.flow__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(8px, 2vw, 12px);
+  margin-bottom: 18px;
+}
+
+.flow__control-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.flow__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cdd6e4;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  &--active {
+    background: #04aa6d;
+    border-color: #04aa6d;
+    color: #06110c;
+    font-weight: 600;
+  }
+
+  // Theme chips preview their own hue via the `--chip-hue` custom property
+  // set inline from the template ([style.--chip-hue]) — a tiny colored dot
+  // baked into the chip via a gradient background instead of a separate
+  // swatch element.
+  &--theme {
+    &::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: hsl(var(--chip-hue, 200), 75%, 55%);
+    }
+  }
+}
+
+.flow__chip-glyph {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.flow__density {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #9aa7bd;
+  margin-left: auto;
+
+  input[type='range'] {
+    accent-color: #04aa6d;
+  }
+}
+
+.flow__reshuffle {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cdd6e4;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.09);
+  }
+}
+
+// ── Canvas ──────────────────────────────────────────────────────────────
+.flow__canvas {
+  position: relative;
+  display: grid;
+  gap: clamp(3px, 0.6vw, 6px);
+  aspect-ratio: 16 / 9;
+  padding: clamp(10px, 2vw, 16px);
+  border-radius: 8px;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.05), transparent 60%),
+    #050810;
+  overflow: hidden;
+
+  // Per-theme base hue. `data-theme` is set from the template via
+  // `[attr.data-theme]="theme()"` — one attribute write re-themes every
+  // tile at once because every tile's color is `hsl(calc(...))` off of
+  // this single custom property, not a hardcoded value per tile.
+  &[data-theme='aurora'] {
+    --base-hue: 152;
+  }
+  &[data-theme='sunset'] {
+    --base-hue: 18;
+  }
+  &[data-theme='ocean'] {
+    --base-hue: 202;
+  }
+  &[data-theme='mono'] {
+    --base-hue: 220;
+  }
+}
+
+.flow__tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+
+  // `--intensity` and `--delay` arrive per-tile from the template
+  // ([style.--intensity], [style.--delay]) — everything below is a
+  // formula over those two numbers, not a per-tile hardcoded style.
+  animation: flow-shimmer 2.6s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.flow__shape {
+  --tile-color: hsl(calc(var(--base-hue) + var(--intensity) * 60), 80%, calc(38% + var(--intensity) * 22%));
+
+  width: calc(55% + var(--intensity) * 25%);
+  height: calc(55% + var(--intensity) * 25%);
+  background: var(--tile-color);
+  box-shadow: 0 0 calc(var(--intensity) * 14px) var(--tile-color);
+
+  &--circle {
+    border-radius: 50%;
+  }
+  &--square {
+    border-radius: 3px;
+  }
+  &--diamond {
+    border-radius: 3px;
+    transform: rotate(45deg) scale(0.78);
+  }
+  &--ring {
+    background: transparent;
+    border: calc(2px + var(--intensity) * 3px) solid var(--tile-color);
+    border-radius: 50%;
+  }
+  &--triangle {
+    width: calc(60% + var(--intensity) * 25%);
+    height: calc(60% + var(--intensity) * 25%);
+    background: transparent;
+    box-shadow: none;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    background: var(--tile-color);
+  }
+  &--dot {
+    width: 30%;
+    height: 30%;
+    border-radius: 50%;
+    background: var(--tile-color);
+  }
+}
+
+// Only rendered for the hottest decile of tiles (`@if (cell.halo)`) — a
+// soft pulsing ring layered behind the shape.
+.flow__halo {
+  position: absolute;
+  inset: -25%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    hsl(calc(var(--base-hue) + var(--intensity) * 60), 90%, 65%) 0%,
+    transparent 70%
+  );
+  opacity: 0.55;
+  animation: flow-halo-pulse 2.6s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  pointer-events: none;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes flow-shimmer {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes flow-halo-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.15);
+  }
+}
+
+// `@empty` block styling — spans the full canvas so the "silence" reads as
+// intentional, not like a layout bug.
+.flow__empty {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #6b7688;
+
+  p {
+    margin: 0;
+  }
+}
+
+.flow__empty-hint {
+  font-size: 0.82rem;
+  margin-top: 4px !important;
+  color: #4b5568;
+}
+
+// ── Footer ──────────────────────────────────────────────────────────────
+.flow__footer {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flow__stats {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #7fe0b5;
+
+  strong {
+    color: #e7ecf3;
+  }
+}
+
+.flow__statement {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #9aa7bd;
+  line-height: 1.5;
+  max-width: 68ch;
+}
