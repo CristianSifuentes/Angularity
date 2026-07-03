@@ -5,9 +5,10 @@ import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
 import { CardList } from './components/card-list/card-list';
 import { BoxModel } from './components/box-model/box-model';
+import { FlowArt } from './components/flow-art/flow-art';
 
 @NgModule({
-  declarations: [App, CardList, BoxModel],
+  declarations: [App, CardList, BoxModel, FlowArt],
   imports: [BrowserModule, AppRoutingModule],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [App],
