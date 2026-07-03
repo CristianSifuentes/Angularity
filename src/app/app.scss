@@ -89,7 +89,8 @@ button {
 // components" is a page-layout concern, not something either component
 // should need to know about itself.
 app-card-list,
-app-box-model {
+app-box-model,
+app-flow-art {
   display: block;
   margin-top: clamp(24px, 6vw, 40px);
 }
