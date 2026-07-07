@@ -39,16 +39,45 @@
 </section>
 
 <!--
-  Parent → child data flow: `clicks` is a signal on THIS component (App).
-  `[highlightSeed]="clicks()"` reads it and passes the plain number down
-  as a property binding — CardList never sees the App class, never
-  imports App, and never knows a button exists. It only knows it received
-  a number. That's the contract a signal `input()` gives you: one-way,
-  read-only from the child's side, and re-evaluated automatically every
-  time `clicks()` changes here.
+  Primary navigation. `routerLink` (a directive, not a real `href`) tells
+  the Router to intercept the click and swap `<router-outlet>`'s content
+  via `pushState` instead of letting the browser do a full page reload —
+  the plain string form here (`routerLink="/cards"`) is sugar for the
+  array form `[routerLink]="['/cards']"`, both compiled the same way.
+
+  `routerLinkActive` watches the CURRENT url and toggles the given
+  class(es) on this element whenever its own `routerLink` target is (a
+  prefix of) that url — no manual "which page am I on" state anywhere in
+  this component. `[routerLinkActiveOptions]="{ exact: true }"` narrows
+  that match so a link to `/` isn't permanently "active" once it also
+  matches every deeper route.
 -->
-<app-card-list [highlightSeed]="clicks()" />
+<nav class="app-nav" aria-label="Primary">
+  <a
+    routerLink="/cards"
+    routerLinkActive="app-nav__link--active"
+    [routerLinkActiveOptions]="{ exact: true }"
+    class="app-nav__link"
+  >Signals &amp; Control Flow</a>
+  <a
+    routerLink="/box-model"
+    routerLinkActive="app-nav__link--active"
+    [routerLinkActiveOptions]="{ exact: true }"
+    class="app-nav__link"
+  >Box Model</a>
+  <a
+    routerLink="/flow-art"
+    routerLinkActive="app-nav__link--active"
+    [routerLinkActiveOptions]="{ exact: true }"
+    class="app-nav__link"
+  >Flow Art</a>
+</nav>
 
-<app-box-model />
-
-<app-flow-art />
+<!--
+  Every feature (CardList, BoxModel, FlowArt) is now a routed page rather
+  than three components rendered side by side — `<router-outlet>` is
+  where the Router mounts whichever one matches the current URL, tearing
+  the previous one down first. Each feature's own lazy chunk (see
+  app-routing-module.ts's `loadChildren`) is fetched on first visit only.
+-->
+<router-outlet></router-outlet>

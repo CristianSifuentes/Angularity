@@ -84,13 +84,54 @@ button {
   color: #5a6b7a;
 }
 
-// `app-card-list` is a *sibling* of `.card`, styled from here (not from
-// card-list.scss) purely because "space between two unrelated
-// components" is a page-layout concern, not something either component
-// should need to know about itself.
-app-card-list,
-app-box-model,
-app-flow-art {
+// ── Primary navigation ────────────────────────────────────────────────
+// BEM again: `.app-nav` is the block, `.app-nav__link` the element, and
+// `.app-nav__link--active` the modifier that `routerLinkActive` (see
+// app.html) toggles on whichever link matches the current URL — Angular
+// only adds/removes that one class name; every actual styling decision
+// lives here, not in the template.
+.app-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(8px, 2vw, 16px);
+  margin-top: clamp(24px, 6vw, 40px);
+}
+
+.app-nav__link {
+  padding: clamp(8px, 2vw, 10px) clamp(14px, 4vw, 18px);
+  border-radius: 4px;
+  background: white;
+  color: #04aa6d;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: #e6f6ef;
+  }
+}
+
+// Stamped onto whichever link's `routerLink` target matches the current
+// URL — inverted colors make "where am I" legible at a glance instead of
+// requiring a glance at the address bar.
+.app-nav__link--active {
+  background: #04aa6d;
+  color: white;
+
+  &:hover {
+    background: #04aa6d;
+  }
+}
+
+// `<router-outlet>` renders no box of its own (it's an anchor comment
+// node) — this targets whichever page component the Router mounts right
+// after it, the same way the line above it used to address
+// `app-card-list`/`app-box-model`/`app-flow-art` by tag name. Emulated
+// encapsulation stamps THIS component's scoping attribute onto a routed
+// child's host element too (exactly how the old tag-name selectors were
+// able to reach into those components' host elements), so the sibling
+// combinator keeps working across the route boundary.
+router-outlet + * {
   display: block;
   margin-top: clamp(24px, 6vw, 40px);
 }
